@@ -14,6 +14,7 @@ const StatusController = () => import('#controllers/statuses_controller')
 const ItemTypeController = () => import('#controllers/item_types_controller')
 const AccountController = () => import('#controllers/accounts_controller')
 const TagController = () => import('#controllers/tags_controller')
+const CustomFieldController = () => import('#controllers/custom_fields_controller')
 
 router
   .group(() => {
@@ -167,6 +168,22 @@ router
       })
       .prefix('tag')
       .use(middleware.auth())
+
+    /**
+    * CustomField routes
+    * 
+    */
+    router
+      .group(() => {
+        router.get('/:id', [CustomFieldController, 'getOne'])
+        router.get('', [CustomFieldController, 'getAll'])
+        router.post('', [CustomFieldController, 'create'])
+        router.put('/:id', [CustomFieldController, 'update'])
+        router.delete('/:id', [CustomFieldController, 'delete'])
+      })
+      .prefix('customField')
+      .use(middleware.auth())
+
     /**
      * Account routes
      *

@@ -2,12 +2,20 @@ import { DateTime } from 'luxon'
 import { cuid } from '@adonisjs/core/helpers'
 import { column, beforeCreate, belongsTo, hasMany } from '@adonisjs/lucid/orm'
 import type { BelongsTo, HasMany } from '@adonisjs/lucid/types/relations'
-import Account from '#models/account'
-import Table from '#models/table'
 import BaseModel from '#models/base'
-import CustomFieldValue from '#models/custom_field_value'
+import Account from '#models/account'
+import CustomFieldOption from '#models/custom_field_option'
 
-export default class Room extends BaseModel {
+export enum CustomFieldType {
+  TEXT = 'text',
+  NUMBER = 'number',
+  DATE = 'date',
+  BOOLEAN = 'boolean',
+  SELECT = 'select',
+  MULTI_SELECT = 'multiselect'
+}
+
+export default class CustomField extends BaseModel {
   @column({ isPrimary: true })
   declare id: string
 
@@ -15,18 +23,19 @@ export default class Room extends BaseModel {
   declare name: string
 
   @column()
-  declare number: number
+  declare label: string | null
 
   @column()
-  declare width: number
+  declare defaultValue: string | null
 
   @column()
-  declare height: number
+  declare fieldType: CustomFieldType
 
-  @hasMany(() => CustomFieldValue, {
-    foreignKey: 'targetId'
-  })
-  declare customFieldValues: HasMany<typeof CustomFieldValue>
+  @column()
+  declare targetModel: string
+
+  @hasMany(() => CustomFieldOption)
+  declare options: HasMany<typeof CustomFieldOption>
 
   @column()
   declare accountId: string
@@ -34,17 +43,14 @@ export default class Room extends BaseModel {
   @belongsTo(() => Account)
   declare account: BelongsTo<typeof Account>
 
-  @hasMany(() => Table)
-  declare tables: HasMany<typeof Table>
-
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
 
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime
-  
+
   @beforeCreate()
-  public static assignCuid(room: Room) {
-    room.id = cuid()
+  public static assignCuid(customField: CustomField) {
+    customField.id = cuid()
   }
 }

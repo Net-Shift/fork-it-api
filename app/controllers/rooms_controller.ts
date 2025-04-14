@@ -1,6 +1,7 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import Room from '#models/room'
 import { createRoom, updateRoom } from '#validators/room'
+import BaseModel from '#models/base'
 
 export default class RoomsController {
 /**
@@ -17,6 +18,7 @@ export default class RoomsController {
           scopes.preload()
         })
         .firstOrFail()
+      await BaseModel.loadCustomFields([room])
       return response.ok(room)
     } catch (error) {
       throw error
@@ -38,6 +40,7 @@ export default class RoomsController {
           scopes.preload()
         })
         .paginate(page, perPage)
+      await BaseModel.loadCustomFields(rooms.all())
       return response.ok(rooms)
     } catch (error) {
       throw error
@@ -73,8 +76,7 @@ export default class RoomsController {
         })
         .firstOrFail()
       const payload = await request.validateUsing(updateRoom)
-      room.merge(payload)
-      await room.save()
+      await room.merge(payload).save()
       return response.ok(room)
     } catch (error) {
       throw error
